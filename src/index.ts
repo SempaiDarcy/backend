@@ -15,8 +15,8 @@ app.get('/',(req:Request, res:Response)=>{
 })
 
 app.use('/products', productsRouter)
-app.use('/hometask_01/api/testing', testingRouter )
-app.use('/hometask_01/api/videos', videosRouter )
+app.use('/testing', testingRouter )
+app.use('/videos', videosRouter )
 
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`)
