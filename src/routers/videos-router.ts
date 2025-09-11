@@ -81,8 +81,8 @@ videosRouter.put('/:id', (req: Request, res: Response) => {
     ) {
         errorsMessages.push({ message: "Invalid minAgeRestriction", field: "minAgeRestriction" });
     }
-
-    if (publicationDate && isNaN(Date.parse(publicationDate))) {
+    //  проверка типа и валидности строки
+    if (typeof publicationDate !== 'string' || isNaN(Date.parse(publicationDate))) {
         errorsMessages.push({ message: "Invalid publicationDate", field: "publicationDate" });
     }
 
