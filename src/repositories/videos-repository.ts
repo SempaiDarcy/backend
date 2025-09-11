@@ -30,28 +30,7 @@ export type UpdateVideoInput = {
     publicationDate: string;
 };
 
- let videos: VideosType[] = [
-    {
-        id: 1,
-        title: "TypeScript Tutorial",
-        author: "Alex",
-        canBeDownloaded: true,
-        minAgeRestriction: null,
-        createdAt: new Date().toISOString(),
-        publicationDate: new Date().toISOString(),
-        availableResolutions: [ResolutionType.P144, ResolutionType.P240, ResolutionType.P360]
-    },
-    {
-        id: 2,
-        title: "Node.js Express Basics",
-        author: "Maria",
-        canBeDownloaded: false,
-        minAgeRestriction: 18,
-        createdAt: new Date().toISOString(),
-        publicationDate: new Date().toISOString(),
-        availableResolutions: [ResolutionType.P480, ResolutionType.P720, ResolutionType.P1080]
-    }
-];
+ let videos: VideosType[] = [];
 
 export const videosRepository = {
     getVideos(): VideosType[] {
@@ -73,42 +52,27 @@ export const videosRepository = {
         ) {
             return null;
         }
+        const createdAt = new Date();
+        const publicationDate = new Date(createdAt);
+        publicationDate.setDate(createdAt.getDate() + 1);
 
         const newVideo: VideosType = {
             id: Date.now(),
             title: title.trim(),
             author: author.trim(),
-            canBeDownloaded: true,
+            canBeDownloaded: false,
             minAgeRestriction: null, // по умолчанию null
-            createdAt: new Date().toISOString(),
-            publicationDate: new Date().toISOString(),
+            createdAt: createdAt.toISOString(),
+            publicationDate: publicationDate.toISOString(),
             availableResolutions
         };
 
         videos.unshift(newVideo);
         return newVideo;
     },
-    updateVideoById(id: number, data: UpdateVideoInput): 'Success' | 'NotFound' | 'BadRequest' {
+    updateVideoById(id: number, data: UpdateVideoInput): 'Success' | 'NotFound' {
         const video = videos.find(el => el.id === id);
         if (!video) return 'NotFound';
-
-        // валидация
-        if (!data.title?.trim() || !data.author?.trim()) return 'BadRequest';
-        if (
-            !Array.isArray(data.availableResolutions) ||
-            !data.availableResolutions.length ||
-            !data.availableResolutions.every(r => Object.values(ResolutionType).includes(r))
-        ) {
-            return 'BadRequest';
-        }
-
-        // валидация minAgeRestriction (1–18 или null)
-        if (
-            data.minAgeRestriction !== null &&
-            (data.minAgeRestriction < 1 || data.minAgeRestriction > 18)
-        ) {
-            return 'BadRequest';
-        }
 
         Object.assign(video, {
             title: data.title.trim(),
