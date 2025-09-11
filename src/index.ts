@@ -1,5 +1,8 @@
 import express, {Request, Response} from 'express';
 import {productsRouter} from "./routers/products-router";
+import {testingRouter} from "./routers/testingRouter";
+import {videosRouter} from "./routers/videos-router";
+// import {productsRouter} from "./routers/products-router";
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -12,6 +15,8 @@ app.get('/',(req:Request, res:Response)=>{
 })
 
 app.use('/products', productsRouter)
+app.use('/hometask_01/api/testing', testingRouter )
+app.use('/hometask_01/api/videos', videosRouter )
 
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`)

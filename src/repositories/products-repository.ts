@@ -22,5 +22,8 @@ export const productsRepository = {
         }
         products.unshift(newProduct)
         return newProduct
+    },
+    clearAll() {
+        products.length = 0;
     }
 }
