@@ -15,7 +15,7 @@ export const productsRepository = {
         }
         const newProduct: ProductType = {
             id: Date.now().toString(),
-            title: 'New Product'
+            title: title.trim()
         }
         products.unshift(newProduct)
         return newProduct
