@@ -1,13 +1,9 @@
 import {ProductType} from "../models/product";
+import {db} from "../db/db";
 
-let products: ProductType[] = [
-    {id: '1', title: "tomato"},
-    {id: '2', title: "banana"}
-
-]
 export const productsRepository = {
     getProducts(): ProductType[] {
-        return products
+        return db.products
     },
     createProduct(title: string): ProductType | null {
         if (!title.trim()) {
@@ -17,10 +13,10 @@ export const productsRepository = {
             id: Date.now().toString(),
             title: title.trim()
         }
-        products.unshift(newProduct)
+        db.products.unshift(newProduct)
         return newProduct
     },
     clearAll() {
-        products.length = 0;
+        db.products.length = 0;
     }
 }

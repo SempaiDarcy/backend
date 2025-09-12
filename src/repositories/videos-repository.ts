@@ -1,14 +1,12 @@
 import {ResolutionType, UpdateVideoInput, VideosType} from "../models/video";
-
-
-let videos: VideosType[] = [];
+import {db} from '../db/db'
 
 export const videosRepository = {
     getVideos(): VideosType[] {
-        return videos;
+        return db.videos;
     },
     getVideoById(id: number): VideosType | null {
-        const video = videos.find(el => el.id === id);
+        const video = db.videos.find(el => el.id === id);
         return video || null
     },
     createNewVideo(title: string, author: string, availableResolutions: ResolutionType[]): VideosType | null {
@@ -38,11 +36,11 @@ export const videosRepository = {
             availableResolutions
         };
 
-        videos.unshift(newVideo);
+        db.videos.unshift(newVideo);
         return newVideo;
     },
     updateVideoById(id: number, data: UpdateVideoInput): 'Success' | 'NotFound' {
-        const video = videos.find(el => el.id === id);
+        const video = db.videos.find(el => el.id === id);
         if (!video) return 'NotFound';
 
         Object.assign(video, {
@@ -57,12 +55,12 @@ export const videosRepository = {
         return 'Success';
     },
     deleteVideoById(id: number): boolean {
-        const initialLength = videos.length
-        const newVideos = videos.filter(el => el.id !== id);
-        videos = newVideos
-        return videos.length < initialLength
+        const initialLength = db.videos.length
+        const newVideos = db.videos.filter(el => el.id !== id);
+        db.videos = newVideos
+        return db.videos.length < initialLength
     },
     clearAll() {
-        videos.length = 0;
+        db.videos.length = 0;
     }
 }
