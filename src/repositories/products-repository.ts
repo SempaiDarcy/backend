@@ -1,24 +1,21 @@
-type ProductType = {
-    id: string
-    title: string,
-}
+import {ProductType} from "../models/product";
 
-let products:ProductType[] = [
-    {id: '1',title:"tomato"},
-    {id: '2',title:"banana"}
+let products: ProductType[] = [
+    {id: '1', title: "tomato"},
+    {id: '2', title: "banana"}
 
 ]
 export const productsRepository = {
-    getProducts():ProductType[] {
+    getProducts(): ProductType[] {
         return products
     },
-    createProduct(title:string): ProductType | null {
+    createProduct(title: string): ProductType | null {
         if (!title.trim()) {
             return null
         }
-        const newProduct:ProductType = {
-            id:Date.now().toString(),
-            title:'New Product'
+        const newProduct: ProductType = {
+            id: Date.now().toString(),
+            title: 'New Product'
         }
         products.unshift(newProduct)
         return newProduct

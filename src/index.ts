@@ -1,23 +1,7 @@
-import express, {Request, Response} from 'express';
-import {productsRouter} from "./routers/products-router";
-import {testingRouter} from "./routers/testingRouter";
-import {videosRouter} from "./routers/videos-router";
-// import {productsRouter} from "./routers/products-router";
+import { app } from './app';
 
-const app = express();
 const PORT = process.env.PORT || 5001;
 
-const parserMiddleware = express.json()
-app.use(parserMiddleware)
-
-app.get('/',(req:Request, res:Response)=>{
-    res.status(200).send('Hello World')
-})
-
-app.use('/products', productsRouter)
-app.use('/testing', testingRouter )
-app.use('/videos', videosRouter )
-
 app.listen(PORT, () => {
-    console.log(`Example app listening on port ${PORT}`)
-})
+    console.log(`Example app listening on port ${PORT}`);
+});
