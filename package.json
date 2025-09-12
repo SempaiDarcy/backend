@@ -10,7 +10,7 @@
     "ngrok": "ngrok http 5001",
     "watch": "tsc -w",
     "localhost:run": "ssh -R 80:localhost:5001 nokey@localhost.run",
-    "jest": "jest"
+    "jest": "jest -i"
   },
   "dependencies": {
     "@types/jest": "^30.0.0",
