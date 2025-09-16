@@ -2,6 +2,7 @@ import express from 'express';
 import { productsRouter } from './routes/products-router';
 import { videosRouter } from './routes/videos-router';
 import { testingRouter } from './routes/testing-router';
+import {blogsRouter} from "./routes/blogs-router";
 
 export const app = express();
 
@@ -14,3 +15,4 @@ app.get('/', (req, res) => {
 app.use('/products', productsRouter);
 app.use('/videos', videosRouter);
 app.use('/testing', testingRouter);
+app.use('/blogs', blogsRouter);
