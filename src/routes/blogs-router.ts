@@ -1,6 +1,7 @@
 import {Request, Response, Router} from "express";
 import {db} from "../db/db";
 import {BlogsType} from "../models/blogs";
+import {authMiddleware} from "../middlewares/auth-middleware";
 
 export const blogsRouter = Router({});
 
@@ -15,7 +16,7 @@ blogsRouter.get('/:id', (req: Request, res: Response) => {
     } else res.sendStatus(404)
 })
 
-blogsRouter.post('/', (req: Request, res: Response) => {
+blogsRouter.post('/', authMiddleware, (req: Request, res: Response) => {
     const {name, description, websiteUrl} = req.body;
     const errorsMessages: { message: string; field: string }[] = [];
 
@@ -54,7 +55,7 @@ blogsRouter.post('/', (req: Request, res: Response) => {
     db.blogs.push(newBlog);
     return res.status(201).send(newBlog)
 })
-blogsRouter.put('/:id', (req: Request, res: Response) => {
+blogsRouter.put('/:id', authMiddleware, (req: Request, res: Response) => {
     const blogId = req.params.id;
     const errorsMessages: { message: string; field: string }[] = [];
 
@@ -98,7 +99,7 @@ blogsRouter.put('/:id', (req: Request, res: Response) => {
 
     return res.sendStatus(204);
 })
-blogsRouter.delete('/:id', (req: Request, res: Response) => {
+blogsRouter.delete('/:id', authMiddleware, (req: Request, res: Response) => {
     const blogId = req.params.id;
     const originalLength = db.blogs.length;
 
