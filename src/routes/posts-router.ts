@@ -1,16 +1,17 @@
 import {Request, Response, Router} from "express";
 import {db} from "../db/db";
 import {authMiddleware} from "../middlewares/auth-middleware";
-import {PostsType} from "../models/posts";
+import {postsRepository} from "../repositories/posts-repository";
 
 export const postsRouter = Router({})
 
 postsRouter.get('/', (req: Request, res: Response) => {
-    res.send(db.posts)
+    const posts = postsRepository.getPosts()
+    res.send(posts)
 })
 postsRouter.get('/:id', (req: Request, res: Response) => {
     const postId = req.params.id;
-    const post = db.posts.find(el => el.id === postId);
+    const post = postsRepository.getPostsById(postId)
     if (post) {
         res.send(post)
     } else res.sendStatus(404)
@@ -44,17 +45,13 @@ postsRouter.post('/', authMiddleware, (req: Request, res: Response) => {
     if (errorsMessages.length) {
         return res.status(400).send({errorsMessages})
     }
-
-    const newPost: PostsType = {
-        id: (db.posts.length + 1).toString(),
+    const newPost = postsRepository.createPosts(
         title,
         shortDescription,
         content,
         blogId,
-        blogName: blog!.name
-    }
-
-    db.posts.push(newPost)
+        blog!.name
+    )
     return res.status(201).send(newPost)
 })
 postsRouter.put('/:id', authMiddleware, (req: Request, res: Response) => {
@@ -87,23 +84,16 @@ postsRouter.put('/:id', authMiddleware, (req: Request, res: Response) => {
     if (errorsMessages.length) {
         return res.status(400).send({errorsMessages})
     }
-    let post = db.posts.find(el => el.id === postId)
-    if (!post) {
+    const isUpdated = postsRepository.updatePosts(title,shortDescription,content,blogId,postId)
+    if (!isUpdated) {
         return res.sendStatus(404);
     }
-    post.title = title;
-    post.shortDescription = shortDescription;
-    post.content = content;
-    post.blogId = blogId;
-    // post.blogName = blog!.name;
-
     return res.sendStatus(204);
 })
 postsRouter.delete('/:id', authMiddleware, (req: Request, res: Response) => {
     const postId = req.params.id;
-    const originalLength = db.posts.length;
-    db.posts = db.posts.filter(el => el.id !== postId);
-    if (db.posts.length === originalLength) {
+    const isDeleted = postsRepository.deletePosts(postId)
+    if (!isDeleted) {
         return res.sendStatus(404)
     }
     return res.sendStatus(204)

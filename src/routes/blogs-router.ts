@@ -1,16 +1,16 @@
 import {Request, Response, Router} from "express";
-import {db} from "../db/db";
-import {BlogsType} from "../models/blogs";
 import {authMiddleware} from "../middlewares/auth-middleware";
+import {blogsRepository} from "../repositories/blogs-repository";
 
 export const blogsRouter = Router({});
 
 blogsRouter.get('/', (req: Request, res: Response) => {
-    res.send(db.blogs)
+    const blogs = blogsRepository.getBlogs()
+    res.send(blogs)
 })
 blogsRouter.get('/:id', (req: Request, res: Response) => {
     const blogId = req.params.id
-    const blog = db.blogs.find(el => el.id === blogId);
+    const blog = blogsRepository.getBlocksById(blogId);
     if (blog) {
         res.status(200).send(blog)
     } else res.sendStatus(404)
@@ -46,13 +46,7 @@ blogsRouter.post('/', authMiddleware, (req: Request, res: Response) => {
         return res.status(400).send({errorsMessages})
     }
 
-    const newBlog: BlogsType = {
-        id: (db.blogs.length + 1).toString(),
-        name,
-        description,
-        websiteUrl
-    }
-    db.blogs.push(newBlog);
+    const newBlog = blogsRepository.createBlog(name, description, websiteUrl)
     return res.status(201).send(newBlog)
 })
 blogsRouter.put('/:id', authMiddleware, (req: Request, res: Response) => {
@@ -87,37 +81,21 @@ blogsRouter.put('/:id', authMiddleware, (req: Request, res: Response) => {
     if (errorsMessages.length > 0) {
         return res.status(400).send({errorsMessages})
     }
-    const blog = db.blogs.find(el => el.id === blogId);
+    const isUpdated = blogsRepository.updateBlog(blogId, name, description, websiteUrl);
 
-    if (!blog) {
+    if (!isUpdated) {
         return res.sendStatus(404)
     }
-
-    blog.name = name;
-    blog.description = description;
-    blog.websiteUrl = websiteUrl;
 
     return res.sendStatus(204);
 })
 blogsRouter.delete('/:id', authMiddleware, (req: Request, res: Response) => {
     const blogId = req.params.id;
-    const originalLength = db.blogs.length;
 
-    db.blogs = db.blogs.filter(el => el.id !== blogId);
-
-    if (db.blogs.length === originalLength) {
+    const isDeleted = blogsRepository.deleteBlog(blogId)
+    if (!isDeleted) {
         return res.sendStatus(404);
     }
-
     return res.sendStatus(204);
 
-    // const blogId = req.params.id;
-    // const index = db.blogs.findIndex(el => el.id === blogId);
-    //
-    // if (index === -1) {
-    //     return res.sendStatus(404);
-    // }
-    //
-    // db.blogs.splice(index, 1); // удалить 1 элемент по индексу
-    // return res.sendStatus(204); // тело ответа не нужно
 })
