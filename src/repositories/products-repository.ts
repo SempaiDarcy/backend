@@ -1,22 +1,38 @@
 import {ProductType} from "../models/product";
-import {db} from "../db/db";
+import {productCollection} from "../db/db";
 
 export const productsRepository = {
-    getProducts(): ProductType[] {
-        return db.products
+    async getProducts(): Promise<ProductType[]> {
+        return productCollection.find({}).toArray()
     },
-    createProduct(title: string): ProductType | null {
+    async createProduct(title: string): Promise<ProductType | null> {
         if (!title.trim()) {
             return null
         }
-        const newProduct: ProductType = {
-            id: Date.now().toString(),
-            title: title.trim()
+        const result =  await productCollection.insertOne({title})
+        return  {
+            title:title,
+            _id: result.insertedId
         }
-        db.products.unshift(newProduct)
-        return newProduct
-    },
-    clearAll() {
-        db.products.length = 0;
     }
 }
+
+// export const productsRepository = {
+//     getProducts(): ProductType[] {
+//         return db.products
+//     },
+//     createProduct(title: string): ProductType | null {
+//         if (!title.trim()) {
+//             return null
+//         }
+//         const newProduct: ProductType = {
+//             id: Date.now().toString(),
+//             title: title.trim()
+//         }
+//         db.products.unshift(newProduct)
+//         return newProduct
+//     },
+//     clearAll() {
+//         db.products.length = 0;
+//     }
+// }
