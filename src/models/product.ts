@@ -1,4 +1,6 @@
+import {ObjectId} from "mongodb";
+
 export type ProductType = {
-    id: string
     title: string,
+    _id?: ObjectId
 }
