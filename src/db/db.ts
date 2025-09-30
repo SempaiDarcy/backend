@@ -3,8 +3,7 @@ import {VideosType} from '../models/video'
 import {BlogsType} from "../models/blogs";
 import {PostsType} from "../models/posts";
 import {MongoClient} from "mongodb";
-import dotenv from "dotenv";
-
+import * as dotenv from "dotenv";
 dotenv.config()
 
 export const db = {
@@ -16,6 +15,9 @@ export const db = {
 
 const url = process.env.MONGO_URL
 console.log('url :', url);
+if (!url) {
+    throw new Error('❗URL doesn\'t found')
+}
 const client = new MongoClient(`${url}`);
 
 export const productCollection = client.db().collection<ProductType>('products');
