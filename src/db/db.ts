@@ -21,6 +21,7 @@ if (!url) {
 const client = new MongoClient(`${url}`);
 
 export const productCollection = client.db().collection<ProductType>('products');
+export const blogsCollection = client.db().collection<BlogsType>('blogs')
 
 export const runDb = async () => {
     try {
