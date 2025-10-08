@@ -4,6 +4,7 @@ import { videosRouter } from './routes/videos-router';
 import { testingRouter } from './routes/testing-router';
 import {blogsRouter} from "./routes/blogs-router";
 import {postsRouter} from "./routes/posts-router";
+// import {postsRouter} from "./routes/posts-router";
 
 export const app = express();
 

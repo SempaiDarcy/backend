@@ -1,54 +1,78 @@
 import {PostsType} from "../models/posts";
-import {db} from "../db/db";
+import {blogsCollection, postsCollection} from "../db/db";
+import {ObjectId} from "mongodb";
 
 export const postsRepository = {
-    getPosts(): PostsType[] {
-        return db.posts
+    async getPosts(): Promise<PostsType[]> {
+        const posts = await postsCollection.find({}).toArray()
+
+        return posts.map(p => ({
+            id: p._id.toString(),
+            title: p.title,
+            shortDescription: p.shortDescription,
+            content: p.content,
+            blogId: p.blogId,
+            blogName: p.blogName,
+            createdAt: p.createdAt,
+        }))
     },
-    getPostsById(postId: string): PostsType | null {
-        const post = db.posts.find(el => el.id === postId);
-        return post || null;
-    },
-    createPosts(
-        title: string,
-        shortDescription: string,
-        content: string,
-        blogId: string,
-        blogName: string
-    ): PostsType {
-        const newPost: PostsType = {
-            id: (db.posts.length + 1).toString(),
+    async getPostsById(postId: string): Promise<PostsType | null> {
+        const post = await postsCollection.findOne({_id: new ObjectId(postId)});
+        if (!post) return null;
+
+        return {
+            id: post._id.toString(),
+            title: post.title,
+            shortDescription: post.shortDescription,
+            content: post.content,
+            blogId: post.blogId,
+            blogName: post.blogName,
+            createdAt: post.createdAt,
+        };
+    }
+    ,
+    async createPosts(title: string, shortDescription: string, content: string, blogId: string): Promise<PostsType | null> {
+        const blog = await blogsCollection.findOne({_id: new ObjectId(blogId)});
+        if (!blog) return null;
+
+        const createdAt = new Date().toISOString();
+        const postToInsert = {title, shortDescription, content, blogId, blogName: blog.name, createdAt};
+        const result = await postsCollection.insertOne(postToInsert);
+        return {
+            id: result.insertedId.toString(),
             title,
             shortDescription,
             content,
             blogId,
-            blogName
-        }
-        db.posts.push(newPost)
-        return newPost
+            blogName: blog.name,
+            createdAt,
+        };
     },
-    updatePosts(
+    async updatePosts(
+        postId: string,
         title: string,
         shortDescription: string,
         content: string,
         blogId: string,
-        postId: string
     ) {
-        let post = db.posts.find(el => el.id === postId);
-        if (!post) {
-            return false
-        }
-        post.title = title;
-        post.shortDescription = shortDescription;
-        post.content = content;
-        post.blogId = blogId;
-        // post.blogName = blog!.name;
+        const result = await postsCollection.updateOne({
+                _id: new ObjectId(postId)
+            },
+            {
+                $set: {
+                    title,
+                    shortDescription,
+                    content,
+                    blogId
+                }
+            })
 
-        return true
+        return result.matchedCount === 1;
     },
-    deletePosts(postId: string): boolean {
-        const originalLength = db.posts.length;
-        db.posts = db.posts.filter(el => el.id !== postId);
-        return db.posts.length !== originalLength
+    async deletePosts(postId: string): Promise<boolean> {
+        const deletedResult = await postsCollection.deleteOne({
+            _id: new ObjectId(postId),
+        })
+        return deletedResult.deletedCount === 1
     }
 }

@@ -4,6 +4,7 @@ import {BlogsType} from "../models/blogs";
 import {PostsType} from "../models/posts";
 import {MongoClient} from "mongodb";
 import * as dotenv from "dotenv";
+
 dotenv.config()
 
 export const db = {
@@ -19,8 +20,14 @@ if (!url) {
     throw new Error('❗URL doesn\'t found')
 }
 const client = new MongoClient(`${url}`);
+const dbName = 'shop-dev';
 
-export const productCollection = client.db().collection<ProductType>('products');
+export const dbInstance = client.db(dbName);
+
+export const productCollection = dbInstance.collection<ProductType>('products');
+export const blogsCollection = dbInstance.collection<BlogsType>('blogs')
+export const postsCollection = dbInstance.collection<PostsType>('posts')
+
 
 export const runDb = async () => {
     try {

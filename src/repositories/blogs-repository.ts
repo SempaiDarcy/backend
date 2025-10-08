@@ -1,38 +1,69 @@
-import {BlogsType} from "../models/blogs";
-import {db} from "../db/db";
+import { BlogsType } from "../models/blogs";
+import { blogsCollection } from "../db/db";
+import { ObjectId } from "mongodb";
 
 export const blogsRepository = {
-    getBlogs(): BlogsType[] {
-        return db.blogs
+    async getBlogs(): Promise<BlogsType[]> {
+        const blogs = await blogsCollection.find({}).toArray();
+        return blogs.map(b => ({
+            id: b._id.toString(),
+            name: b.name,
+            description: b.description,
+            websiteUrl: b.websiteUrl,
+            createdAt: b.createdAt,
+            isMembership: b.isMembership
+        }));
     },
-    getBlocksById(blogId: string): BlogsType | null {
-        const blog = db.blogs.find(el => el.id === blogId);
-        return blog || null
+
+    async getBlocksById(blogId: string): Promise<BlogsType | null> {
+        const blog = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
+        if (!blog) return null;
+
+        return {
+            id: blog._id.toString(),
+            name: blog.name,
+            description: blog.description,
+            websiteUrl: blog.websiteUrl,
+            createdAt: blog.createdAt,
+            isMembership: blog.isMembership
+        };
     },
-    createBlog(name: string, description: string, websiteUrl: string): BlogsType {
-        const newBlog: BlogsType = {
-            id: (db.blogs.length + 1).toString(),
+
+    async createBlog(name: string, description: string, websiteUrl: string): Promise<BlogsType> {
+        const newBlog = {
             name,
             description,
-            websiteUrl
-        }
-        db.blogs.push(newBlog);
-        return newBlog;
-    },
-    updateBlog(blogId: string, name: string, description: string, websiteUrl: string): boolean {
-        const blog = db.blogs.find(el => el.id === blogId);
-        if (!blog) return false;
+            websiteUrl,
+            createdAt: new Date().toISOString(),
+            isMembership: false
+        };
 
-        blog.name = name;
-        blog.description = description;
-        blog.websiteUrl = websiteUrl;
+        const result = await blogsCollection.insertOne(newBlog);
 
-        return true;
+        // достаём только нужные поля — без _id
+        const createdBlog: BlogsType = {
+            id: result.insertedId.toString(),
+            name: newBlog.name,
+            description: newBlog.description,
+            websiteUrl: newBlog.websiteUrl,
+            createdAt: newBlog.createdAt,
+            isMembership: newBlog.isMembership
+        };
+
+        return createdBlog;
     },
-    deleteBlog(blogId: string): boolean {
-        const originalLength = db.blogs.length;
-        db.blogs = db.blogs.filter(el => el.id !== blogId);
-        return db.blogs.length !== originalLength
+
+    async updateBlog(blogId: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
+        const result = await blogsCollection.updateOne(
+            { _id: new ObjectId(blogId) },
+            { $set: { name, description, websiteUrl } }
+        );
+
+        return result.matchedCount === 1;
+    },
+
+    async deleteBlog(blogId: string): Promise<boolean> {
+        const result = await blogsCollection.deleteOne({ _id: new ObjectId(blogId) });
+        return result.deletedCount === 1;
     }
-
-}
+};

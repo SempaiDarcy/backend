@@ -3,21 +3,20 @@ import {authMiddleware} from "../middlewares/auth-middleware";
 import {postsRepository} from "../repositories/posts-repository";
 import {postsValidation} from "../middlewares/validation/posts-validation";
 import {inputValidationMiddleware} from "../middlewares/validation/input-validation-middleware";
-import {blogsRepository} from "../repositories/blogs-repository";
 import {idValidation} from "../middlewares/validation/id-validation";
 
 export const postsRouter = Router({})
 
-postsRouter.get('/', (req: Request, res: Response) => {
-    const posts = postsRepository.getPosts()
+postsRouter.get('/', async (req: Request, res: Response) => {
+    const posts = await postsRepository.getPosts()
     res.send(posts)
 })
 postsRouter.get(
     '/:id',
     idValidation,
-    (req: Request, res: Response) => {
+    async (req: Request, res: Response) => {
         const postId = req.params.id;
-        const post = postsRepository.getPostsById(postId)
+        const post = await postsRepository.getPostsById(postId)
         if (post) {
             res.send(post)
         } else res.sendStatus(404)
@@ -27,19 +26,24 @@ postsRouter.post(
     authMiddleware,
     postsValidation,
     inputValidationMiddleware,
-    (req: Request, res: Response) => {
-        const {title, shortDescription, content, blogId} = req.body;
-
-        const blog = blogsRepository.getBlocksById(blogId)!;
-
-        const newPost = postsRepository.createPosts(
+    async (req: Request, res: Response) => {
+        const {
             title,
             shortDescription,
             content,
             blogId,
-            blog!.name
+        } = req.body;
+
+        const newPost = await postsRepository.createPosts(
+            title,
+            shortDescription,
+            content,
+            blogId,
+
         )
-        res.status(201).send(newPost)
+        if (!newPost) return res.sendStatus(400);
+
+        return res.status(201).send(newPost)
     })
 postsRouter.put(
     '/:id',
@@ -47,16 +51,21 @@ postsRouter.put(
     idValidation,
     postsValidation,
     inputValidationMiddleware,
-    (req: Request, res: Response) => {
+    async (req: Request, res: Response) => {
         const postId = req.params.id;
-        const {title, shortDescription, content, blogId} = req.body;
-
-        const isUpdated = postsRepository.updatePosts(
+        const {
             title,
             shortDescription,
             content,
             blogId,
-            postId
+        } = req.body;
+
+        const isUpdated = await postsRepository.updatePosts(
+            postId,
+            title,
+            shortDescription,
+            content,
+            blogId,
         )
 
         if (!isUpdated) {
@@ -69,9 +78,9 @@ postsRouter.delete(
     authMiddleware,
     idValidation,
     inputValidationMiddleware,
-    (req: Request, res: Response) => {
+    async (req: Request, res: Response) => {
         const postId = req.params.id;
-        const isDeleted = postsRepository.deletePosts(postId)
+        const isDeleted = await postsRepository.deletePosts(postId)
         if (!isDeleted) {
             return res.sendStatus(404)
         }

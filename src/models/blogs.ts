@@ -1,6 +1,8 @@
 export type BlogsType = {
-    id: string,
+    id?: string,
     name: string,
     description: string,
-    websiteUrl: string
+    websiteUrl: string,
+    createdAt: string,
+    isMembership: boolean
 }

@@ -23,3 +23,54 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
     return next();
 };
+
+
+
+//
+// import { NextFunction, Request, Response } from 'express';
+//
+// export const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+// export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'qwerty';
+//
+// export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         const authHeader = req.headers.authorization;
+//         if (typeof authHeader !== 'string') {
+//             return res.sendStatus(401);
+//         }
+//
+//         const parts = authHeader.split(' ');
+//         if (parts.length !== 2) {
+//             return res.sendStatus(401);
+//         }
+//
+//         const [authType, token] = parts;
+//         if (authType !== 'Basic' || !token) {
+//             return res.sendStatus(401);
+//         }
+//
+//         let decoded: string;
+//         try {
+//             decoded = Buffer.from(token, 'base64').toString('utf-8');
+//         } catch {
+//             return res.sendStatus(401);
+//         }
+//
+//         const separatorIndex = decoded.indexOf(':');
+//         if (separatorIndex === -1) {
+//             return res.sendStatus(401);
+//         }
+//
+//         const username = decoded.slice(0, separatorIndex);
+//         const password = decoded.slice(separatorIndex + 1);
+//
+//         if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+//             return res.sendStatus(401);
+//         }
+//
+//         return next();
+//     } catch (err) {
+//         console.error('Auth middleware error:', err);
+//         return res.sendStatus(401);
+//     }
+// };
