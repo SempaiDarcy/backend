@@ -33,15 +33,11 @@ blogsRouter.post(
             name,
             description,
             websiteUrl,
-            createdAt,
-            isMemberShip
         } = req.body;
         const newBlog = await blogsRepository.createBlog(
             name,
             description,
-            websiteUrl,
-            createdAt,
-            isMemberShip)
+            websiteUrl,)
         res.status(201).send(newBlog)
     })
 blogsRouter.put(
